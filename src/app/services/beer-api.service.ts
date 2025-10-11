@@ -1,8 +1,8 @@
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
-import { catchError, retry, retryWhen, mergeMap, finalize } from 'rxjs/operators';
-import { Beer, BeerSearchParams, ApiError, RateLimitInfo } from '../models/beer.model';
+import { catchError, retry } from 'rxjs/operators';
+import { ApiError, Beer, BeerSearchParams, RateLimitInfo } from '../models/beer.model';
 
 /**
  * Service for interacting with the Punk API
@@ -262,33 +262,25 @@ export class BeerApiService {
   private retryWithBackoff<T>() {
     return (source: Observable<T>): Observable<T> => {
       return source.pipe(
-        retryWhen(errors =>
-          errors.pipe(
-            mergeMap((error, index) => {
-              const retryAttempt = index + 1;
-              
-              // Don't retry client errors (4xx) - includes 429 rate limits
-              if (error.status >= 400 && error.status < 500) {
-                return throwError(() => error);
-              }
-              
-              // Max retries exceeded
-              if (retryAttempt > this.maxRetries) {
-                return throwError(() => error);
-              }
-              
-              // Calculate exponential backoff delay
-              const delay = this.retryDelay * Math.pow(2, retryAttempt - 1);
-              
-              console.warn(
-                `API request failed. Retry attempt ${retryAttempt}/${this.maxRetries} after ${delay}ms`,
-                error
-              );
-              
-              return timer(delay);
-            })
-          )
-        )
+        retry({
+          count: this.maxRetries,
+          delay: (error, retryCount) => {
+            // Don't retry client errors (4xx) - includes 429 rate limits
+            if (error.status >= 400 && error.status < 500) {
+              return throwError(() => error);
+            }
+            
+            // Calculate exponential backoff delay
+            const delayMs = this.retryDelay * Math.pow(2, retryCount - 1);
+            
+            console.warn(
+              `API request failed. Retry attempt ${retryCount}/${this.maxRetries} after ${delayMs}ms`,
+              error
+            );
+            
+            return timer(delayMs);
+          }
+        })
       );
     };
   }
