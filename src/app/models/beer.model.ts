@@ -157,8 +157,8 @@ export interface SortConfig {
  * ABV range filter
  */
 export interface AbvRange {
-  min: number;
-  max: number;
+  min: number | null;
+  max: number | null;
 }
 
 /**
