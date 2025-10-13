@@ -1,5 +1,7 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { Injectable, signal, computed, inject, DestroyRef } from '@angular/core';
+import { Subject } from 'rxjs';
+import { switchMap, tap, catchError } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { 
   Beer, 
   FilterMode, 
@@ -24,12 +26,24 @@ import { FavoritesService } from '../services/favorites.service';
  * - Client-side filtering and sorting
  * - Automatic empty state messages
  * - Seamless switching between API and favorites
+ * - **Automatic request cancellation** (switchMap pattern)
+ * - **Race condition prevention** for overlapping API calls
+ * 
+ * Request Cancellation Architecture:
+ * - Uses RxJS switchMap to automatically cancel pending requests
+ * - When new parameters arrive, previous request is cancelled (including retries!)
+ * - Prevents stale data from completing after newer requests
+ * - Works seamlessly with API service's retry logic
  * 
  * Data Flow:
- * 1. sourceBeers: Switch between API data and favorites based on filterMode
- * 2. filteredBeers: Apply searchTerm and abvRange filters
- * 3. sortedBeers: Apply sort configuration
- * 4. displayedBeers: Final output for UI
+ * 1. User changes filter → loadTrigger$ emits new params
+ * 2. switchMap cancels previous request (even mid-retry)
+ * 3. New request starts with updated params
+ * 4. Only latest request can complete and update state
+ * 5. sourceBeers: Switch between API data and favorites based on filterMode
+ * 6. filteredBeers: Apply searchTerm and abvRange filters
+ * 7. sortedBeers: Apply sort configuration
+ * 8. displayedBeers: Final output for UI
  * 
  * @example
  * // In a component:
@@ -52,6 +66,13 @@ import { FavoritesService } from '../services/favorites.service';
 export class BeerStore {
   private readonly apiService = inject(BeerApiService);
   private readonly favoritesService = inject(FavoritesService);
+  private readonly destroyRef = inject(DestroyRef);
+  
+  /**
+   * Subject to trigger API loads with automatic cancellation
+   * Using switchMap ensures only the latest request completes
+   */
+  private readonly loadTrigger$ = new Subject<BeerSearchParams>();
   
   // ============================================================================
   // State Signals
@@ -94,11 +115,53 @@ export class BeerStore {
   
   /**
    * Sort configuration (field + direction)
+   * Default is 'recommended' (no sorting, API default order)
    */
   readonly sortConfig = signal<SortConfig>({ 
-    by: 'name', 
+    by: 'recommended', 
     direction: 'asc' 
   });
+  
+  // ============================================================================
+  // Constructor - Set up automatic request cancellation pipeline
+  // ============================================================================
+  
+  constructor() {
+    // Set up the switchMap pipeline for automatic request cancellation
+    // This ensures only the latest request completes, preventing race conditions
+    this.loadTrigger$.pipe(
+      // Set loading state when request starts
+      tap(() => {
+        this.loading.set(true);
+        this.error.set(null);
+      }),
+      
+      // switchMap cancels previous HTTP request when new one arrives
+      switchMap(params => 
+        this.apiService.searchBeers(params).pipe(
+          // Handle successful response
+          tap(beers => {
+            this.beers.set(beers);
+            console.log(`Loaded ${beers.length} beers (page ${params.page || 1})`);
+          }),
+          // Handle errors for this specific request
+          catchError(error => {
+            const message = error.message || 'Failed to load beers';
+            this.error.set(message);
+            console.error('Failed to load beers:', error);
+            // Return empty array to continue the stream
+            return [];
+          })
+        )
+      ),
+      
+      // Clear loading state when request completes (success or error)
+      tap(() => this.loading.set(false)),
+      
+      // Cleanup on component destruction
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+  }
   
   // ============================================================================
   // Computed Signals
@@ -152,10 +215,16 @@ export class BeerStore {
   /**
    * Sorted beers (apply sortConfig)
    * Client-side sorting always (API doesn't support it)
+   * When by === 'recommended', returns natural API order (no sorting)
    */
   readonly sortedBeers = computed(() => {
     const beers = [...this.filteredBeers()];
     const { by, direction } = this.sortConfig();
+    
+    // 'recommended' means no sorting - return natural API order
+    if (by === 'recommended') {
+      return beers;
+    }
     
     beers.sort((a, b) => {
       let valueA: string | number | null | undefined;
@@ -240,43 +309,34 @@ export class BeerStore {
    * Only called when filterMode === 'all'
    * Honors current page, searchTerm, and abvRange
    * 
+   * Uses switchMap pattern via loadTrigger$ for automatic request cancellation.
+   * If called multiple times rapidly, only the latest request will complete.
+   * 
    * Note: Favorites mode doesn't call API (uses sessionStorage)
-   * Always resolves (never rejects) - errors are communicated via error signal
+   * This method triggers the load but doesn't await completion (reactive pattern)
    */
-  async loadBeers(): Promise<void> {
+  loadBeers(): void {
     // Don't load from API when in favorites mode
     if (this.filterMode() === 'favorites') {
       console.log('In favorites mode - skipping API call');
       return;
     }
     
-    this.loading.set(true);
-    this.error.set(null);
+    // Build params from current state
+    const abvMin = this.abvRange().min;
+    const abvMax = this.abvRange().max;
     
-    try {
-      const abvMin = this.abvRange().min;
-      const abvMax = this.abvRange().max;
-      
-      const params: BeerSearchParams = {
-        page: this.currentPage(),
-        per_page: 25,
-        beer_name: this.searchTerm() || undefined,
-        abv_gt: abvMin !== null ? abvMin : undefined,
-        abv_lt: abvMax !== null ? abvMax : undefined,
-      };
-      
-      // Use firstValueFrom for cleaner async/await pattern
-      const beers = await firstValueFrom(this.apiService.searchBeers(params));
-      this.beers.set(beers);
-      console.log(`Loaded ${beers.length} beers (page ${this.currentPage()})`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load beers';
-      this.error.set(message);
-      console.error('Failed to load beers:', error);
-      // Don't re-throw - communicate errors via signal only
-    } finally {
-      this.loading.set(false);
-    }
+    const params: BeerSearchParams = {
+      page: this.currentPage(),
+      per_page: 25,
+      beer_name: this.searchTerm() || undefined,
+      abv_gt: abvMin !== null ? abvMin : undefined,
+      abv_lt: abvMax !== null ? abvMax : undefined,
+    };
+    
+    // Trigger the load via Subject
+    // switchMap will automatically cancel any pending request
+    this.loadTrigger$.next(params);
   }
   
   /**
@@ -381,16 +441,17 @@ export class BeerStore {
   
   /**
    * Reset all filters to defaults
-   * Reloads data if in 'all' mode
+   * Clears search, ABV range, sort, and switches back to 'all' mode
+   * Reloads data from API
    */
   resetFilters(): void {
     this.searchTerm.set('');
     this.abvRange.set({ min: null, max: null });
-    this.sortConfig.set({ by: 'name', direction: 'asc' });
+    this.sortConfig.set({ by: 'recommended', direction: 'asc' });
+    this.filterMode.set('all');
     this.currentPage.set(1);
     
-    if (this.filterMode() === 'all') {
-      this.loadBeers();
-    }
+    // Load beers from API (now that we're in 'all' mode)
+    this.loadBeers();
   }
 }

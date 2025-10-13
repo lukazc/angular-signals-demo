@@ -1,4 +1,7 @@
 <div class="beer-list">
+    <!-- Filter Controls -->
+    <app-filter-container class="beer-list__filters" />
+    
     @if (store.loading()) {
     <div class="beer-list__loading">
         <mat-spinner diameter="64"></mat-spinner>

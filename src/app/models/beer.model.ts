@@ -112,8 +112,9 @@ export interface Beer {
 
 /**
  * Sort options for beers
+ * 'recommended' means no sorting applied (API default order)
  */
-export type BeerSortOption = 'name' | 'abv';
+export type BeerSortOption = 'recommended' | 'name' | 'abv';
 
 /**
  * Sort direction
@@ -147,6 +148,7 @@ export interface BeerSearchParams {
 
 /**
  * Sort configuration for client-side sorting
+ * When by === 'recommended', direction is ignored and natural API order is used
  */
 export interface SortConfig {
   by: BeerSortOption;
