@@ -1,0 +1,195 @@
+.beer-list {
+    width: 100%;
+    min-height: 400px;
+}
+
+/* Loading State */
+.beer-list__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 3rem 1rem;
+}
+
+.beer-list__loading-text {
+    margin-top: 1.5rem;
+    font-size: 1.125rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Error State */
+.beer-list__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.beer-list__error-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--mat-warn);
+    margin-bottom: 1rem;
+}
+
+.beer-list__error-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.beer-list__error-message {
+    margin: 0 0 1.5rem;
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.6);
+    max-width: 500px;
+}
+
+.beer-list__retry-btn {
+    mat-icon {
+        margin-right: 0.5rem;
+    }
+}
+
+/* Empty State */
+.beer-list__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.beer-list__empty-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+}
+
+.beer-list__empty-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.beer-list__empty-message {
+    margin: 0 0 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, 0.6);
+    max-width: 500px;
+}
+
+.beer-list__clear-btn {
+    mat-icon {
+        margin-right: 0.5rem;
+    }
+}
+
+/* Grid Layout */
+.beer-list__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 0;
+}
+
+/* Pagination */
+.beer-list__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.beer-list__pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 120px;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.beer-list__page-indicator {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.7);
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Responsive Grid */
+@media (max-width: 1200px) {
+    .beer-list__grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .beer-list__grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .beer-list__pagination {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .beer-list__pagination-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .beer-list__page-indicator {
+        order: -1;
+    }
+}
+
+@media (max-width: 480px) {
+    .beer-list__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .beer-list__error-title,
+    .beer-list__empty-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* Animation */
+.beer-list__grid {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

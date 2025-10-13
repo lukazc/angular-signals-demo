@@ -1,0 +1,166 @@
+<div class="beer-detail">
+    <div mat-dialog-title class="beer-detail__header">
+        <h2 class="beer-detail__title">{{ beer.name }}</h2>
+        <button mat-icon-button mat-dialog-close class="beer-detail__close-btn" aria-label="Close dialog">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-dialog-content class="beer-detail__content">
+        <div class="beer-detail__main">
+            <div class="beer-detail__image-section">
+                @if (beer.image_url) {
+                <img class="beer-detail__image" [ngSrc]="beer.image_url!" [alt]="beer.name" width="80" height="300"
+                    priority />
+                } @else {
+                <div class="beer-detail__image-placeholder">
+                    <mat-icon>local_drink</mat-icon>
+                </div>
+                }
+            </div>
+
+            <div class="beer-detail__info">
+                <p class="beer-detail__tagline">{{ beer.tagline }}</p>
+
+                <div class="beer-detail__stats">
+                    <div class="beer-detail__stat">
+                        <span class="beer-detail__stat-label">ABV</span>
+                        <span class="beer-detail__stat-value">{{ beer.abv ?? 'N/A' }}%</span>
+                    </div>
+                    @if (beer.ibu) {
+                    <div class="beer-detail__stat">
+                        <span class="beer-detail__stat-label">IBU</span>
+                        <span class="beer-detail__stat-value">{{ beer.ibu }}</span>
+                    </div>
+                    }
+                    @if (beer.ebc) {
+                    <div class="beer-detail__stat">
+                        <span class="beer-detail__stat-label">EBC</span>
+                        <span class="beer-detail__stat-value">{{ beer.ebc }}</span>
+                    </div>
+                    }
+                    @if (beer.ph) {
+                    <div class="beer-detail__stat">
+                        <span class="beer-detail__stat-label">pH</span>
+                        <span class="beer-detail__stat-value">{{ beer.ph }}</span>
+                    </div>
+                    }
+                </div>
+
+                @if (beer.first_brewed) {
+                <p class="beer-detail__first-brewed">
+                    <mat-icon class="beer-detail__icon">calendar_today</mat-icon>
+                    First brewed: {{ beer.first_brewed }}
+                </p>
+                }
+            </div>
+        </div>
+
+        <mat-divider class="beer-detail__divider"></mat-divider>
+
+        <div class="beer-detail__section">
+            <h3 class="beer-detail__section-title">Description</h3>
+            <p class="beer-detail__description">{{ beer.description }}</p>
+        </div>
+
+        @if (beer.food_pairing && beer.food_pairing.length > 0) {
+        <mat-divider class="beer-detail__divider"></mat-divider>
+
+        <div class="beer-detail__section">
+            <h3 class="beer-detail__section-title">
+                <mat-icon class="beer-detail__section-icon">restaurant</mat-icon>
+                Food Pairing
+            </h3>
+            <mat-chip-set class="beer-detail__chips">
+                @for (food of beer.food_pairing; track food) {
+                <mat-chip>{{ food }}</mat-chip>
+                }
+            </mat-chip-set>
+        </div>
+        }
+
+        @if (beer.brewers_tips) {
+        <mat-divider class="beer-detail__divider"></mat-divider>
+
+        <div class="beer-detail__section">
+            <h3 class="beer-detail__section-title">
+                <mat-icon class="beer-detail__section-icon">lightbulb</mat-icon>
+                Brewer's Tips
+            </h3>
+            <p class="beer-detail__tips">{{ beer.brewers_tips }}</p>
+        </div>
+        }
+
+        @if (beer.ingredients) {
+        <mat-divider class="beer-detail__divider"></mat-divider>
+
+        <div class="beer-detail__section">
+            <h3 class="beer-detail__section-title">
+                <mat-icon class="beer-detail__section-icon">grain</mat-icon>
+                Ingredients
+            </h3>
+
+            @if (beer.ingredients.malt && beer.ingredients.malt.length > 0) {
+            <div class="beer-detail__ingredient-group">
+                <h4 class="beer-detail__ingredient-title">Malt</h4>
+                <ul class="beer-detail__ingredient-list">
+                    @for (malt of beer.ingredients.malt; track malt.name) {
+                    <li>
+                        {{ malt.name }}
+                        @if (malt.amount) {
+                        <span class="beer-detail__ingredient-amount">
+                            ({{ malt.amount.value }} {{ malt.amount.unit }})
+                        </span>
+                        }
+                    </li>
+                    }
+                </ul>
+            </div>
+            }
+
+            @if (beer.ingredients.hops && beer.ingredients.hops.length > 0) {
+            <div class="beer-detail__ingredient-group">
+                <h4 class="beer-detail__ingredient-title">Hops</h4>
+                <ul class="beer-detail__ingredient-list">
+                    @for (hop of beer.ingredients.hops; track hop.name) {
+                    <li>
+                        {{ hop.name }}
+                        @if (hop.amount) {
+                        <span class="beer-detail__ingredient-amount">
+                            ({{ hop.amount.value }} {{ hop.amount.unit }})
+                        </span>
+                        }
+                        @if (hop.add) {
+                        <span class="beer-detail__ingredient-badge">{{ hop.add }}</span>
+                        }
+                    </li>
+                    }
+                </ul>
+            </div>
+            }
+
+            @if (beer.ingredients.yeast) {
+            <div class="beer-detail__ingredient-group">
+                <h4 class="beer-detail__ingredient-title">Yeast</h4>
+                <p class="beer-detail__yeast">{{ beer.ingredients.yeast }}</p>
+            </div>
+            }
+        </div>
+        }
+
+        @if (beer.contributed_by) {
+        <mat-divider class="beer-detail__divider"></mat-divider>
+
+        <p class="beer-detail__contributor">
+            <mat-icon class="beer-detail__icon">person</mat-icon>
+            Contributed by {{ beer.contributed_by }}
+        </p>
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="beer-detail__actions">
+        <button mat-raised-button color="primary" mat-dialog-close class="beer-detail__close-action">
+            Close
+        </button>
+    </mat-dialog-actions>
+</div>

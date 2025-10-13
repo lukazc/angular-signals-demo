@@ -1,0 +1,41 @@
+<mat-card class="beer-card" [class.beer-card--favorite]="isFavorite()">
+    <div class="beer-card__image-container">
+        @if (beer().image_url) {
+        <img class="beer-card__image" [ngSrc]="beer().image_url!" [alt]="beer().name" width="50" height="200"
+            priority />
+        } @else {
+        <div class="beer-card__image-placeholder">
+            <mat-icon class="beer-card__placeholder-icon">local_drink</mat-icon>
+        </div>
+        }
+
+        <button mat-icon-button class="beer-card__favorite-btn" [class.beer-card__favorite-btn--active]="isFavorite()"
+            (click)="onFavoriteClick($event)"
+            [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+            [attr.aria-pressed]="isFavorite()">
+            <mat-icon>{{ isFavorite() ? 'favorite' : 'favorite_border' }}</mat-icon>
+        </button>
+    </div>
+
+    <mat-card-content class="beer-card__content">
+        <h3 class="beer-card__name">{{ beer().name }}</h3>
+        <p class="beer-card__tagline">{{ beer().tagline }}</p>
+
+        <div class="beer-card__meta">
+            <span class="beer-card__abv">
+                <mat-icon class="beer-card__abv-icon">science</mat-icon>
+                {{ beer().abv ?? 'N/A' }}% ABV
+            </span>
+            @if (beer().ibu) {
+            <span class="beer-card__ibu">{{ beer().ibu }} IBU</span>
+            }
+        </div>
+    </mat-card-content>
+
+    <mat-card-actions class="beer-card__actions">
+        <button mat-raised-button color="primary" class="beer-card__details-btn" (click)="onDetailsClick()"
+            aria-label="View details for {{ beer().name }}">
+            View Details
+        </button>
+    </mat-card-actions>
+</mat-card>
