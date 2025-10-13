@@ -1,4 +1,5 @@
-import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,19 +41,19 @@ import { Beer } from '../../models/beer.model';
     templateUrl: './beer-list.component.html',
     styleUrl: './beer-list.component.scss',
 })
-export class BeerListComponent implements OnInit {
+export class BeerListComponent {
     /** Beer store for accessing beer data and state */
     readonly store = inject(BeerStore);
 
     /** Material Dialog for showing beer details */
     private readonly dialog = inject(MatDialog);
+    
+    /** Router for URL-based pagination */
+    private readonly router = inject(Router);
+    
+    /** Activated route for reading current route info */
+    private readonly route = inject(ActivatedRoute);
 
-    /**
-     * Load initial beers on component initialization
-     */
-    ngOnInit(): void {
-        this.store.loadBeers();
-    }
 
     /**
      * Handle details button click - open modal with beer details
@@ -90,16 +91,30 @@ export class BeerListComponent implements OnInit {
 
     /**
      * Handle previous page button click
+     * Navigates to previous page via URL change
      */
     onPreviousPage(): void {
-        this.store.loadPreviousPage();
+        const currentPage = this.store.currentPage();
+        if (currentPage > 1) {
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { page: currentPage - 1 },
+                queryParamsHandling: 'merge'
+            });
+        }
     }
 
     /**
      * Handle next page button click
+     * Navigates to next page via URL change
      */
     onNextPage(): void {
-        this.store.loadNextPage();
+        const nextPage = this.store.currentPage() + 1;
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { page: nextPage },
+            queryParamsHandling: 'merge'
+        });
     }
 
     /**

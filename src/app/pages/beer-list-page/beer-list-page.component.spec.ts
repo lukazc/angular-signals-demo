@@ -4,11 +4,14 @@ import { BeerStore } from '../../stores/beer.store';
 import { provideZonelessChangeDetection, signal, WritableSignal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Beer } from '../../models/beer.model';
+import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 describe('BeerListPageComponent', () => {
   let component: BeerListPageComponent;
   let fixture: ComponentFixture<BeerListPageComponent>;
   let mockBeerStore: any;
+  let router: Router;
 
   // Signal instances for mock store
   let beersSignal: WritableSignal<Beer[]>;
@@ -22,6 +25,19 @@ describe('BeerListPageComponent', () => {
   let emptyMessageSignal: WritableSignal<string>;
   let searchTermSignal: WritableSignal<string>;
   let abvRangeSignal: WritableSignal<{ min: number | null; max: number | null }>;
+
+  /**
+   * Helper to create component with specific query params
+   */
+  const createComponentWithQueryParams = async (queryParams: Record<string, string> = {}) => {
+    // Navigate to route with query params
+    await router.navigate(['/beers'], { queryParams });
+    
+    // Create component
+    fixture = TestBed.createComponent(BeerListPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  };
 
   beforeEach(async () => {
     // Create fresh signal instances for each test
@@ -51,20 +67,27 @@ describe('BeerListPageComponent', () => {
       abvRange: abvRangeSignal,
       sourceBeers: sourceBeersSignal,
       loadBeers: jasmine.createSpy('loadBeers'),
-      loadNextPage: jasmine.createSpy('loadNextPage'),
-      loadPreviousPage: jasmine.createSpy('loadPreviousPage'),
       toggleFavorite: jasmine.createSpy('toggleFavorite'),
       isFavorite: jasmine.createSpy('isFavorite').and.returnValue(false),
-      resetFilters: jasmine.createSpy('resetFilters')
+      resetFilters: jasmine.createSpy('resetFilters'),
+      setInitialPage: jasmine.createSpy('setInitialPage')
     };
 
     await TestBed.configureTestingModule({
       imports: [BeerListPageComponent, NoopAnimationsModule],
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([
+          { path: 'beers', component: BeerListPageComponent }
+        ]),
         { provide: BeerStore, useValue: mockBeerStore }
       ]
     }).compileComponents();
+
+    router = TestBed.inject(Router);
+    
+    // Navigate to beers route before each test
+    await router.navigate(['/beers']);
 
     fixture = TestBed.createComponent(BeerListPageComponent);
     component = fixture.componentInstance;
@@ -114,5 +137,100 @@ describe('BeerListPageComponent', () => {
     const link = compiled.querySelector('.beer-list-page__footer a') as HTMLAnchorElement;
     expect(link).toBeTruthy();
     expect(link.href).toContain('punkapi');
+  });
+
+  describe('URL-Driven Pagination', () => {
+    it('should read page 1 from URL on initial load', async () => {
+      await createComponentWithQueryParams({ page: '1' });
+      
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(1);
+      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    });
+
+    it('should read page 3 from URL on initial load', async () => {
+      await createComponentWithQueryParams({ page: '3' });
+      
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(3);
+      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    });
+
+    it('should default to page 1 when no query param present', async () => {
+      await createComponentWithQueryParams();
+      
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(1);
+      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    });
+
+    it('should default to page 1 for invalid page numbers', async () => {
+      await createComponentWithQueryParams({ page: '-1' });
+      
+      // Component passes -1, but store validates and defaults to 1
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(-1);
+      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    });
+
+    it('should react to manual URL changes', async () => {
+      // Start on page 1
+      await createComponentWithQueryParams({ page: '1' });
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(1);
+      
+      // Reset spies
+      mockBeerStore.setInitialPage.calls.reset();
+      mockBeerStore.loadBeers.calls.reset();
+      
+      // Manually change URL to page 3
+      await router.navigate(['/beers'], { queryParams: { page: '3' } });
+      await fixture.whenStable();
+      
+      // Should update store and reload beers
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(3);
+      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    });
+
+    it('should not reload if URL changes to same page', async () => {
+      // Start on page 2
+      await createComponentWithQueryParams({ page: '2' });
+      currentPageSignal.set(2);
+      
+      // Reset spies
+      mockBeerStore.setInitialPage.calls.reset();
+      mockBeerStore.loadBeers.calls.reset();
+      
+      // Manually navigate to same page
+      await router.navigate(['/beers'], { queryParams: { page: '2' } });
+      await fixture.whenStable();
+      
+      // Should not update store since page hasn't changed (optimization)
+      expect(mockBeerStore.setInitialPage).not.toHaveBeenCalled();
+      expect(mockBeerStore.loadBeers).not.toHaveBeenCalled();
+    });
+
+    it('should handle navigation from page 2 to page 1', async () => {
+      // Start on page 2
+      await createComponentWithQueryParams({ page: '2' });
+      mockBeerStore.setInitialPage.calls.reset();
+      mockBeerStore.loadBeers.calls.reset();
+      
+      // Navigate to page 1
+      await router.navigate(['/beers'], { queryParams: { page: '1' } });
+      await fixture.whenStable();
+      
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(1);
+      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    });
+
+    it('should handle navigation without page param (defaults to 1)', async () => {
+      // Start on page 3
+      await createComponentWithQueryParams({ page: '3' });
+      mockBeerStore.setInitialPage.calls.reset();
+      mockBeerStore.loadBeers.calls.reset();
+      
+      // Navigate to /beers with no query params
+      await router.navigate(['/beers']);
+      await fixture.whenStable();
+      
+      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(1);
+      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    });
   });
 });

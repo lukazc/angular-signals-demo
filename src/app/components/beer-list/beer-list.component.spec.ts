@@ -6,12 +6,14 @@ import { Beer } from '../../models/beer.model';
 import { provideZonelessChangeDetection, signal, WritableSignal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { BeerDetailModalComponent } from '../beer-detail-modal/beer-detail-modal.component';
+import { Router, provideRouter } from '@angular/router';
 
 describe('BeerListComponent', () => {
   let component: BeerListComponent;
   let fixture: ComponentFixture<BeerListComponent>;
   let mockBeerStore: any;
   let mockDialog: MatDialog;
+  let router: Router;
 
   // Signal instances for mock store
   let beersSignal: WritableSignal<Beer[]>;
@@ -88,8 +90,6 @@ describe('BeerListComponent', () => {
       abvRange: abvRangeSignal,
       sourceBeers: sourceBeersSignal,
       loadBeers: jasmine.createSpy('loadBeers'),
-      loadNextPage: jasmine.createSpy('loadNextPage'),
-      loadPreviousPage: jasmine.createSpy('loadPreviousPage'),
       toggleFavorite: jasmine.createSpy('toggleFavorite'),
       isFavorite: jasmine.createSpy('isFavorite').and.returnValue(false)
     };
@@ -98,6 +98,7 @@ describe('BeerListComponent', () => {
       imports: [BeerListComponent, NoopAnimationsModule, MatDialogModule],
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([{ path: 'beers', component: BeerListComponent }]),
         { provide: BeerStore, useValue: mockBeerStore }
       ]
     }).compileComponents();
@@ -110,6 +111,9 @@ describe('BeerListComponent', () => {
       id: 'mock-dialog-1'
     } as any);
 
+    router = TestBed.inject(Router);
+    await router.navigate(['/beers']);
+
     fixture = TestBed.createComponent(BeerListComponent);
     component = fixture.componentInstance;
   });
@@ -118,9 +122,12 @@ describe('BeerListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load beers on init', () => {
+    it('should not load beers on init (parent component handles initial load)', () => {
     fixture.detectChanges();
-    expect(mockBeerStore.loadBeers).toHaveBeenCalled();
+    
+    // BeerListComponent no longer calls loadBeers in ngOnInit
+    // The parent BeerListPageComponent handles initial load based on URL
+    expect(mockBeerStore.loadBeers).not.toHaveBeenCalled();
   });
 
   it('should display loading state', () => {
@@ -300,29 +307,46 @@ describe('BeerListComponent', () => {
     expect(nextButton.disabled).toBe(false);
   });
 
-  it('should call loadPreviousPage when previous button is clicked', () => {
+  it('should navigate to previous page when previous button is clicked', async () => {
     currentPageSignal.set(2);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('.beer-list__pagination-btn');
     const prevButton = buttons[0] as HTMLButtonElement;
+    
+    spyOn(router, 'navigate');
     prevButton.click();
 
-    expect(mockBeerStore.loadPreviousPage).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      jasmine.objectContaining({
+        queryParams: { page: 1 },
+        queryParamsHandling: 'merge'
+      })
+    );
   });
 
-  it('should call loadNextPage when next button is clicked', () => {
+  it('should navigate to next page when next button is clicked', async () => {
     const manyBeers = Array(25).fill(null).map((_, i) => ({ ...mockBeer, id: i + 1 }));
     displayedBeersSignal.set(manyBeers);
+    currentPageSignal.set(1);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = compiled.querySelectorAll('.beer-list__pagination-btn');
     const nextButton = buttons[1] as HTMLButtonElement;
+    
+    spyOn(router, 'navigate');
     nextButton.click();
 
-    expect(mockBeerStore.loadNextPage).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      jasmine.objectContaining({
+        queryParams: { page: 2 },
+        queryParamsHandling: 'merge'
+      })
+    );
   });
 
   it('should display current page number', () => {

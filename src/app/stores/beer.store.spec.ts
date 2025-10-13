@@ -254,7 +254,9 @@ describe('BeerStore', () => {
     });
 
     it('should pass pagination params to API', async () => {
-      store.loadNextPage();
+      // Set page via setInitialPage (URL-driven approach)
+      store.setInitialPage(2);
+      store.loadBeers();
 
       const req = httpTestingController.expectOne((req) => {
         const params = req.params;
@@ -693,9 +695,10 @@ describe('BeerStore', () => {
     });
   });
 
-  describe('Pagination', () => {
-    it('should load next page', async () => {
-      store.loadNextPage();
+  describe('Pagination (URL-driven)', () => {
+    it('should load page 2 when setInitialPage is called', async () => {
+      store.setInitialPage(2);
+      store.loadBeers();
 
       expect(store.currentPage()).toBe(2);
 
@@ -706,34 +709,62 @@ describe('BeerStore', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    it('should load previous page', async () => {
-      store.currentPage.set(3);
-
-      store.loadPreviousPage();
-
-      expect(store.currentPage()).toBe(2);
-
-      const req = httpTestingController.expectOne((req) => 
-        req.url.includes('/beers') && req.params.get('page') === '2'
-      );
-      req.flush(mockBeers, { headers: { 'X-RateLimit-Remaining': '3599' } });
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
-
-    it('should not go below page 1', () => {
-      store.loadPreviousPage();
+    it('should load page 1 when setInitialPage is called with no page param', async () => {
+      store.setInitialPage(1);
+      store.loadBeers();
 
       expect(store.currentPage()).toBe(1);
-      httpTestingController.expectNone((req) => req.url.includes('/beers'));
+
+      const req = httpTestingController.expectOne((req) => 
+        req.url.includes('/beers') && req.params.get('page') === '1'
+      );
+      req.flush(mockBeers, { headers: { 'X-RateLimit-Remaining': '3599' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    it('should not paginate in favorites mode', () => {
-      spyOn(console, 'warn');
+    it('should update currentPage and load new data when navigating between pages', async () => {
+      // Simulate navigation from page 1 to page 3
+      store.setInitialPage(3);
+      store.loadBeers();
+
+      expect(store.currentPage()).toBe(3);
+
+      const req = httpTestingController.expectOne((req) => 
+        req.url.includes('/beers') && req.params.get('page') === '3'
+      );
+      req.flush(mockBeers, { headers: { 'X-RateLimit-Remaining': '3599' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    it('should handle page navigation back to page 1', async () => {
+      // Start at page 3
+      store.setInitialPage(3);
+      store.loadBeers();
+      
+      const req1 = httpTestingController.expectOne((req) => req.url.includes('/beers'));
+      req1.flush(mockBeers, { headers: { 'X-RateLimit-Remaining': '3599' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      // Navigate back to page 1
+      store.setInitialPage(1);
+      store.loadBeers();
+
+      expect(store.currentPage()).toBe(1);
+
+      const req2 = httpTestingController.expectOne((req) => 
+        req.url.includes('/beers') && req.params.get('page') === '1'
+      );
+      req2.flush(mockBeers, { headers: { 'X-RateLimit-Remaining': '3599' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    it('should not call API in favorites mode regardless of page', () => {
       store.setFilterMode('favorites');
+      
+      store.setInitialPage(5);
+      store.loadBeers();
 
-      store.loadNextPage();
-
-      expect(console.warn).toHaveBeenCalledWith('Pagination not available in favorites mode');
+      // Should not make any HTTP requests in favorites mode
       httpTestingController.expectNone((req) => req.url.includes('/beers'));
     });
   });

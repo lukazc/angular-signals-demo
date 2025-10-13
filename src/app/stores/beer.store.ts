@@ -280,6 +280,23 @@ export class BeerStore {
   }
   
   /**
+   * Set initial page from URL query parameter
+   * Should be called only once during component initialization
+   * Does not trigger API call (component will call loadBeers after)
+   * 
+   * @param page - Page number from URL (must be positive integer)
+   */
+  setInitialPage(page: number): void {
+    if (page > 0 && Number.isInteger(page)) {
+      this.currentPage.set(page);
+      console.log(`Initialized to page ${page} from URL`);
+    } else {
+      console.warn(`Invalid page number: ${page}, defaulting to 1`);
+      this.currentPage.set(1);
+    }
+  }
+  
+  /**
    * Set search term (filters beer names)
    * In 'all' mode: Triggers new API call
    * In 'favorites' mode: Applies client-side filter
@@ -373,36 +390,6 @@ export class BeerStore {
     this.currentPage.set(1);
     
     if (this.filterMode() === 'all') {
-      this.loadBeers();
-    }
-  }
-  
-  /**
-   * Load next page (pagination)
-   * Only works in 'all' mode
-   */
-  loadNextPage(): void {
-    if (this.filterMode() === 'favorites') {
-      console.warn('Pagination not available in favorites mode');
-      return;
-    }
-    
-    this.currentPage.update(page => page + 1);
-    this.loadBeers();
-  }
-  
-  /**
-   * Load previous page (pagination)
-   * Only works in 'all' mode
-   */
-  loadPreviousPage(): void {
-    if (this.filterMode() === 'favorites') {
-      console.warn('Pagination not available in favorites mode');
-      return;
-    }
-    
-    if (this.currentPage() > 1) {
-      this.currentPage.update(page => page - 1);
       this.loadBeers();
     }
   }
