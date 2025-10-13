@@ -9,7 +9,7 @@
         <mat-icon class="beer-list__error-icon">error_outline</mat-icon>
         <h2 class="beer-list__error-title">Oops! Something went wrong</h2>
         <p class="beer-list__error-message">{{ store.error() }}</p>
-        <button mat-raised-button color="primary" class="beer-list__retry-btn" (click)="onRetry()">
+        <button [matButton]="'elevated'" color="primary" class="beer-list__retry-btn" (click)="onRetry()">
             <mat-icon>refresh</mat-icon>
             Try Again
         </button>
@@ -24,7 +24,7 @@
 
         @if (store.filterMode() === 'all' && (store.searchTerm() || store.abvRange().min !== null ||
         store.abvRange().max !== null)) {
-        <button mat-raised-button color="primary" class="beer-list__clear-btn" (click)="onClearFilters()">
+        <button [matButton]="'elevated'" color="primary" class="beer-list__clear-btn" (click)="onClearFilters()">
             <mat-icon>clear</mat-icon>
             Clear Filters
         </button>
@@ -40,7 +40,7 @@
 
     @if (store.filterMode() === 'all') {
     <div class="beer-list__pagination">
-        <button mat-raised-button class="beer-list__pagination-btn" [disabled]="store.currentPage() === 1"
+        <button [matButton]="'elevated'" class="beer-list__pagination-btn" [disabled]="store.currentPage() === 1"
             (click)="onPreviousPage()" aria-label="Go to previous page">
             <mat-icon>chevron_left</mat-icon>
             Previous
@@ -50,7 +50,7 @@
             Page {{ store.currentPage() }}
         </span>
 
-        <button mat-raised-button class="beer-list__pagination-btn" [disabled]="store.displayedBeers().length < 25"
+        <button [matButton]="'elevated'" class="beer-list__pagination-btn" [disabled]="store.displayedBeers().length < 25"
             (click)="onNextPage()" aria-label="Go to next page">
             Next
             <mat-icon>chevron_right</mat-icon>
