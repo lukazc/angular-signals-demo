@@ -1,9 +1,9 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { NgOptimizedImage } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Beer } from '../../models/beer.model';
+import { ImageFallbackDirective } from '../../directives/image-fallback.directive';
 
 /**
  * Beer Card Component
@@ -13,7 +13,7 @@ import { Beer } from '../../models/beer.model';
  * 
  * Features:
  * - Responsive card layout
- * - Optimized image loading with NgOptimizedImage
+ * - Automatic image fallback for missing/failed beer images
  * - Hover effects and transitions
  * - Accessibility with keyboard navigation
  * - Favorite status indicator (filled/outlined heart)
@@ -29,10 +29,10 @@ import { Beer } from '../../models/beer.model';
 @Component({
     selector: 'app-beer-card',
     imports: [
-        NgOptimizedImage,
         MatCardModule,
         MatButtonModule,
-        MatIconModule
+        MatIconModule,
+        ImageFallbackDirective
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './beer-card.component.html',

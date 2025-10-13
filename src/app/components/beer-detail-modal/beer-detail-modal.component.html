@@ -9,14 +9,10 @@
     <mat-dialog-content class="beer-detail__content">
         <div class="beer-detail__main">
             <div class="beer-detail__image-section">
-                @if (beer.image_url) {
-                <img class="beer-detail__image" [ngSrc]="beer.image_url!" [alt]="beer.name" width="80" height="300"
-                    priority />
-                } @else {
-                <div class="beer-detail__image-placeholder">
-                    <mat-icon>local_drink</mat-icon>
-                </div>
-                }
+                <img class="beer-detail__image" 
+                     [src]="beer.image_url || './fallback_beer.png'" 
+                     [alt]="beer.name" 
+                     appImageFallback />
             </div>
 
             <div class="beer-detail__info">

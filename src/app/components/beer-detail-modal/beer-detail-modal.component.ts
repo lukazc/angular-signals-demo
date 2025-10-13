@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { NgOptimizedImage } from '@angular/common';
 import { Beer } from '../../models/beer.model';
+import { ImageFallbackDirective } from '../../directives/image-fallback.directive';
 
 /**
  * Beer Detail Modal Component
@@ -19,6 +19,7 @@ import { Beer } from '../../models/beer.model';
  * - Scrollable content for long descriptions
  * - Keyboard accessible (ESC to close)
  * - Smooth animations
+ * - Automatic image fallback for missing/failed beer images
  * 
  * @example
  * const dialogRef = this.dialog.open(BeerDetailModalComponent, {
@@ -30,7 +31,7 @@ import { Beer } from '../../models/beer.model';
 @Component({
     selector: 'app-beer-detail-modal',
     imports: [
-        NgOptimizedImage,
+        ImageFallbackDirective,
         MatDialogModule,
         MatButtonModule,
         MatIconModule,

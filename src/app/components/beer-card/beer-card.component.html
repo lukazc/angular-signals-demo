@@ -1,13 +1,9 @@
 <mat-card class="beer-card" [class.beer-card--favorite]="isFavorite()" (click)="onDetailsClick()">
     <div class="beer-card__image-container">
-        @if (beer().image_url) {
-        <img class="beer-card__image" [ngSrc]="beer().image_url!" [alt]="beer().name" width="50" height="200"
-            priority />
-        } @else {
-        <div class="beer-card__image-placeholder">
-            <mat-icon class="beer-card__placeholder-icon">local_drink</mat-icon>
-        </div>
-        }
+        <img class="beer-card__image" 
+             [src]="beer().image_url || './fallback_beer.png'" 
+             [alt]="beer().name" 
+             appImageFallback />
 
         <button mat-icon-button class="beer-card__favorite-btn" [class.beer-card__favorite-btn--active]="isFavorite()"
             (click)="$event.stopPropagation(); onFavoriteClick($event)"
