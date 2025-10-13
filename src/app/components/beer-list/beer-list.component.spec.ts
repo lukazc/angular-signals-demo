@@ -27,6 +27,7 @@ describe('BeerListComponent', () => {
   let emptyMessageSignal: WritableSignal<string>;
   let searchTermSignal: WritableSignal<string>;
   let abvRangeSignal: WritableSignal<{ min: number | null; max: number | null }>;
+  let sortConfigSignal: WritableSignal<{ by: 'recommended' | 'name' | 'abv'; direction: 'asc' | 'desc' }>;
 
   const mockBeer: Beer = {
     id: 1,
@@ -75,6 +76,7 @@ describe('BeerListComponent', () => {
     emptyMessageSignal = signal('');
     searchTermSignal = signal('');
     abvRangeSignal = signal({ min: null, max: null });
+    sortConfigSignal = signal({ by: 'recommended' as const, direction: 'asc' as const });
 
     // Create mock store with signal properties
     mockBeerStore = {
@@ -88,7 +90,10 @@ describe('BeerListComponent', () => {
       emptyMessage: emptyMessageSignal,
       searchTerm: searchTermSignal,
       abvRange: abvRangeSignal,
+      sortConfig: sortConfigSignal,
       sourceBeers: sourceBeersSignal,
+      setInitialPage: jasmine.createSpy('setInitialPage'),
+      resetFilters: jasmine.createSpy('resetFilters'),
       loadBeers: jasmine.createSpy('loadBeers'),
       toggleFavorite: jasmine.createSpy('toggleFavorite'),
       isFavorite: jasmine.createSpy('isFavorite').and.returnValue(false)
@@ -122,12 +127,12 @@ describe('BeerListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-    it('should not load beers on init (parent component handles initial load)', () => {
+    it('should load beers on init from URL params', () => {
     fixture.detectChanges();
     
-    // BeerListComponent no longer calls loadBeers in ngOnInit
-    // The parent BeerListPageComponent handles initial load based on URL
-    expect(mockBeerStore.loadBeers).not.toHaveBeenCalled();
+    // BeerListComponent now handles URL integration directly
+    // It reads query params on init and calls loadBeers
+    expect(mockBeerStore.loadBeers).toHaveBeenCalled();
   });
 
   it('should display loading state', () => {
@@ -307,7 +312,7 @@ describe('BeerListComponent', () => {
     expect(nextButton.disabled).toBe(false);
   });
 
-  it('should navigate to previous page when previous button is clicked', async () => {
+  it('should update store when previous button is clicked', async () => {
     currentPageSignal.set(2);
     fixture.detectChanges();
 
@@ -315,19 +320,15 @@ describe('BeerListComponent', () => {
     const buttons = compiled.querySelectorAll('.beer-list__pagination-btn');
     const prevButton = buttons[0] as HTMLButtonElement;
     
-    spyOn(router, 'navigate');
+    // Component now updates store signals, which triggers effect to update URL
     prevButton.click();
+    fixture.detectChanges();
 
-    expect(router.navigate).toHaveBeenCalledWith(
-      [],
-      jasmine.objectContaining({
-        queryParams: { page: 1 },
-        queryParamsHandling: 'merge'
-      })
-    );
+    expect(currentPageSignal()).toBe(1);
+    expect(mockBeerStore.loadBeers).toHaveBeenCalled();
   });
 
-  it('should navigate to next page when next button is clicked', async () => {
+  it('should update store when next page button is clicked', async () => {
     const manyBeers = Array(25).fill(null).map((_, i) => ({ ...mockBeer, id: i + 1 }));
     displayedBeersSignal.set(manyBeers);
     currentPageSignal.set(1);
@@ -337,16 +338,12 @@ describe('BeerListComponent', () => {
     const buttons = compiled.querySelectorAll('.beer-list__pagination-btn');
     const nextButton = buttons[1] as HTMLButtonElement;
     
-    spyOn(router, 'navigate');
+    // Component now updates store signals, which triggers effect to update URL
     nextButton.click();
+    fixture.detectChanges();
 
-    expect(router.navigate).toHaveBeenCalledWith(
-      [],
-      jasmine.objectContaining({
-        queryParams: { page: 2 },
-        queryParamsHandling: 'merge'
-      })
-    );
+    expect(currentPageSignal()).toBe(2);
+    expect(mockBeerStore.loadBeers).toHaveBeenCalled();
   });
 
   it('should display current page number', () => {

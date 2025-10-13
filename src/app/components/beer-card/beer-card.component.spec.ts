@@ -87,14 +87,15 @@ describe('BeerCardComponent', () => {
     expect(image.alt).toBe('Punk IPA');
   });
 
-  it('should display placeholder when image_url is null', () => {
+  it('should display fallback image when image_url is null', () => {
     const beerWithoutImage = { ...mockBeer, image_url: null };
     fixture.componentRef.setInput('beer', beerWithoutImage);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const placeholder = compiled.querySelector('.beer-card__image-placeholder');
-    expect(placeholder).toBeTruthy();
+    const image = compiled.querySelector('.beer-card__image') as HTMLImageElement;
+    expect(image).toBeTruthy();
+    expect(image.src).toContain('fallback_beer.png');
   });
 
   it('should show outlined heart when not favorite', () => {

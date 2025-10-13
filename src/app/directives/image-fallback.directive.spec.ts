@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component, DebugElement } from '@angular/core';
+import { Component, DebugElement, provideZonelessChangeDetection } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ImageFallbackDirective } from './image-fallback.directive';
 
@@ -24,7 +24,10 @@ describe('ImageFallbackDirective', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [TestComponent]
+            imports: [TestComponent],
+            providers: [
+                provideZonelessChangeDetection(),
+            ]
         }).compileComponents();
 
         fixture = TestBed.createComponent(TestComponent);

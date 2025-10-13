@@ -166,7 +166,7 @@ describe('BeerDetailModalComponent', () => {
     expect(image.alt).toBe('Punk IPA');
   });
 
-  it('should display placeholder when image_url is null', async () => {
+  it('should display fallback image when image_url is null', async () => {
     const beerWithoutImage = { ...mockBeer, image_url: null };
     
     TestBed.resetTestingModule();
@@ -183,9 +183,10 @@ describe('BeerDetailModalComponent', () => {
     newFixture.detectChanges();
     
     const compiled = newFixture.nativeElement as HTMLElement;
-    const placeholder = compiled.querySelector('.beer-detail__image-placeholder');
+    const image = compiled.querySelector('.beer-detail__image') as HTMLImageElement;
     
-    expect(placeholder).toBeTruthy();
+    expect(image).toBeTruthy();
+    expect(image.src).toContain('fallback_beer.png');
   });
 
   it('should not display stats that are null', async () => {

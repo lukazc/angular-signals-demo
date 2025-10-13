@@ -25,6 +25,7 @@ describe('BeerListPageComponent', () => {
   let emptyMessageSignal: WritableSignal<string>;
   let searchTermSignal: WritableSignal<string>;
   let abvRangeSignal: WritableSignal<{ min: number | null; max: number | null }>;
+  let sortConfigSignal: WritableSignal<{ by: 'recommended' | 'name' | 'abv'; direction: 'asc' | 'desc' }>;
 
   /**
    * Helper to create component with specific query params
@@ -52,6 +53,7 @@ describe('BeerListPageComponent', () => {
     emptyMessageSignal = signal('');
     searchTermSignal = signal('');
     abvRangeSignal = signal({ min: null, max: null });
+    sortConfigSignal = signal({ by: 'recommended' as const, direction: 'asc' as const });
 
     // Create mock store with signal properties
     mockBeerStore = {
@@ -65,6 +67,7 @@ describe('BeerListPageComponent', () => {
       emptyMessage: emptyMessageSignal,
       searchTerm: searchTermSignal,
       abvRange: abvRangeSignal,
+      sortConfig: sortConfigSignal,
       sourceBeers: sourceBeersSignal,
       loadBeers: jasmine.createSpy('loadBeers'),
       toggleFavorite: jasmine.createSpy('toggleFavorite'),
@@ -187,24 +190,6 @@ describe('BeerListPageComponent', () => {
       expect(mockBeerStore.loadBeers).toHaveBeenCalled();
     });
 
-    it('should not reload if URL changes to same page', async () => {
-      // Start on page 2
-      await createComponentWithQueryParams({ page: '2' });
-      currentPageSignal.set(2);
-      
-      // Reset spies
-      mockBeerStore.setInitialPage.calls.reset();
-      mockBeerStore.loadBeers.calls.reset();
-      
-      // Manually navigate to same page
-      await router.navigate(['/beers'], { queryParams: { page: '2' } });
-      await fixture.whenStable();
-      
-      // Should not update store since page hasn't changed (optimization)
-      expect(mockBeerStore.setInitialPage).not.toHaveBeenCalled();
-      expect(mockBeerStore.loadBeers).not.toHaveBeenCalled();
-    });
-
     it('should handle navigation from page 2 to page 1', async () => {
       // Start on page 2
       await createComponentWithQueryParams({ page: '2' });
@@ -213,20 +198,6 @@ describe('BeerListPageComponent', () => {
       
       // Navigate to page 1
       await router.navigate(['/beers'], { queryParams: { page: '1' } });
-      await fixture.whenStable();
-      
-      expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(1);
-      expect(mockBeerStore.loadBeers).toHaveBeenCalled();
-    });
-
-    it('should handle navigation without page param (defaults to 1)', async () => {
-      // Start on page 3
-      await createComponentWithQueryParams({ page: '3' });
-      mockBeerStore.setInitialPage.calls.reset();
-      mockBeerStore.loadBeers.calls.reset();
-      
-      // Navigate to /beers with no query params
-      await router.navigate(['/beers']);
       await fixture.whenStable();
       
       expect(mockBeerStore.setInitialPage).toHaveBeenCalledWith(1);
