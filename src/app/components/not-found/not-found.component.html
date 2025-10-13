@@ -1,0 +1,29 @@
+<div class="not-found">
+    <div class="not-found__container">
+        <!-- Error Icon -->
+        <mat-icon class="not-found__icon">error_outline</mat-icon>
+
+        <!-- Error Code -->
+        <h1 class="not-found__code">404</h1>
+
+        <!-- Error Title -->
+        <h2 class="not-found__title">Page Not Found</h2>
+
+        <!-- Error Message -->
+        <p class="not-found__message">
+            Oops! The page you're looking for doesn't exist.
+            It might have been moved or deleted.
+        </p>
+
+        <!-- Back to Home Button -->
+        <a 
+            routerLink="/beers" 
+            mat-raised-button 
+            color="primary" 
+            class="not-found__button"
+        >
+            <mat-icon>home</mat-icon>
+            Back to Home
+        </a>
+    </div>
+</div>

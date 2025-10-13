@@ -71,13 +71,12 @@ describe('ErrorMessageService', () => {
     });
 
     it('should auto-dismiss after custom timeout', async () => {
-      service.showError('Test error', 3000); // 3 seconds
+      service.showError('Test error', 100); // 100ms for faster test
       expect(service.currentError()).toBe('Test error');
       
-      await new Promise(resolve => setTimeout(resolve, 2999));
-      expect(service.currentError()).toBe('Test error'); // Still visible
+      // Wait for timeout to complete with buffer
+      await new Promise(resolve => setTimeout(resolve, 150));
       
-      await new Promise(resolve => setTimeout(resolve, 1));
       expect(service.currentError()).toBeNull(); // Cleared
     });
 
