@@ -9,9 +9,6 @@
     position: relative;
     background: var(--mat-sys-surface-container-low);
     &:hover {
-        // transform: translateY(-3px);
-        // box-shadow: rgba(0, 0, 0, 0.6) 0px 2px 8px -2px;
-        // background: var(--mat-sys-secondary-container);
         background: var(--mat-sys-surface-container);
         .beer-card__image-container {
             background: var(--mat-sys-primary-container);
@@ -34,7 +31,7 @@
     align-items: center;
     justify-content: center;
     height: 220px;
-    background: var(--mat-sys-secondary-container);
+    background: var(--mat-sys-surface-container-highest);
     padding: 1rem;
 }
 
