@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     max-height: 90vh;
+    background: var(--mat-sys-surface-container-low);
 }
 
 .beer-detail__header {
@@ -204,7 +205,6 @@
 }
 
 .beer-detail__actions {
-    padding: 1rem 1.5rem !important;
     border-top: 1px solid rgba(0, 0, 0, 0.12);
     justify-content: flex-end !important;
 }
