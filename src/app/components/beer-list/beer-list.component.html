@@ -12,7 +12,7 @@
         <mat-icon class="beer-list__error-icon">error_outline</mat-icon>
         <h2 class="beer-list__error-title">Oops! Something went wrong</h2>
         <p class="beer-list__error-message">{{ store.error() }}</p>
-        <button [matButton]="'elevated'" color="primary" class="beer-list__retry-btn" (click)="onRetry()">
+        <button matButton="outlined" color="primary" class="beer-list__retry-btn" (click)="onRetry()">
             <mat-icon>refresh</mat-icon>
             Try Again
         </button>
