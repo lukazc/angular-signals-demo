@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use "@angular/material" as mat;
+@use "../_theme-colors" as theme;
 
 /* ========================================
    Angular Material Theme Configuration
@@ -8,12 +9,20 @@ html {
     /* Support both light and dark mode based on system preference */
     color-scheme: light dark;
 
-    /* Apply Material 3 theme with custom primary color */
+    /* Apply Material 3 theme with custom primary color (#ffc71c) */
     @include mat.theme(
         (
-            color: mat.$yellow-palette,
+            color: (
+                primary: theme.$primary-palette,
+                tertiary: theme.$tertiary-palette,
+            ),
         )
     );
+
+    /* Apply high contrast overrides when users prefer more contrast */
+    @media (prefers-contrast: more) {
+        @include theme.high-contrast-overrides(color-scheme);
+    }
 }
 
 /* Apply theme surface and text colors to body */

@@ -1,5 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgOptimizedImage } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BeerListComponent } from '../../components/beer-list/beer-list.component';
 import { BeerStore } from '../../stores/beer.store';
@@ -44,6 +45,7 @@ import { BeerStore } from '../../stores/beer.store';
 @Component({
     selector: 'app-beer-list-page',
     imports: [
+        NgOptimizedImage,
         BeerListComponent
         // FilterContainerComponent - TODO: Add when Phase 3 is complete
     ],
