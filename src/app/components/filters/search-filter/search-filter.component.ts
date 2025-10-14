@@ -82,6 +82,11 @@ import { MatInputModule } from '@angular/material/input';
     </div>
   `,
   styles: [`
+    
+    ::ng-deep mat-form-field .mat-mdc-form-field-infix {
+        display: flex !important;
+    }
+
     .search-filter {
       width: 100%;
       

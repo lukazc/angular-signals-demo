@@ -79,7 +79,7 @@
 
 /* Footer Styles */
 .beer-list-page__footer {
-    background: rgba(255, 255, 255, 0.9);
+    background: #ffc71c;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     padding: 1.5rem 0;
     margin-top: auto;
@@ -88,7 +88,6 @@
 .beer-list-page__footer-text {
     margin: 0;
     text-align: center;
-    color: rgba(0, 0, 0, 0.6);
     font-size: 0.875rem;
 
     a {
@@ -98,7 +97,6 @@
         transition: color 0.2s ease;
 
         &:hover {
-            color: #764ba2;
             text-decoration: underline;
         }
     }
