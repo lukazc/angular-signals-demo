@@ -1,4 +1,19 @@
 <div class="beer-list-page">
+    <!-- Documentation Button -->
+    @if (showDocumentationLink()) {
+        <a 
+            [href]="documentationUrl()" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            matButton="tonal"
+            class="beer-list-page__docs-btn"
+            aria-label="View Documentation"
+        >
+            <mat-icon>description</mat-icon>
+            <span>Docs</span>
+        </a>
+    }
+
     <!-- Page Header -->
     <header class="beer-list-page__header">
         <div class="beer-list-page__container">

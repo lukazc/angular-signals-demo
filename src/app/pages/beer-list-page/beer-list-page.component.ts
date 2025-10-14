@@ -1,7 +1,9 @@
-import { Component, inject, ChangeDetectionStrategy, OnInit, DestroyRef } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, OnInit, DestroyRef, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { BeerListComponent } from '../../components/beer-list/beer-list.component';
 import { BeerStore } from '../../stores/beer.store';
 
@@ -46,8 +48,9 @@ import { BeerStore } from '../../stores/beer.store';
     selector: 'app-beer-list-page',
     imports: [
         NgOptimizedImage,
-        BeerListComponent
-        // FilterContainerComponent - TODO: Add when Phase 3 is complete
+        BeerListComponent,
+        MatButtonModule,
+        MatIconModule
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './beer-list-page.component.html',
@@ -65,6 +68,32 @@ export class BeerListPageComponent implements OnInit {
     
     /** DestroyRef for managing subscriptions */
     private readonly destroyRef = inject(DestroyRef);
+    
+    /**
+     * Get the actual base URL where the app is deployed at runtime
+     */
+    private get baseUrl(): string {
+        const currentPath = window.location.pathname;
+        
+        // If we're on GitHub Pages, the path will include the repo name
+        if (currentPath.includes('/angular-signals-demo/')) {
+            const basePath = currentPath.substring(0, currentPath.indexOf('/angular-signals-demo/') + '/angular-signals-demo/'.length);
+            return `${window.location.origin}${basePath}`;
+        }
+        
+        // For local development or other deployments
+        return `${window.location.origin}/`;
+    }
+    
+    /** Get the correct documentation URL relative to runtime base URL */
+    readonly documentationUrl = computed(() => {
+        return `${this.baseUrl}docs/index.html`;
+    });
+    
+    /** Check if documentation is available (when app is deployed) */
+    readonly showDocumentationLink = computed(() => {
+        return window.location.pathname.includes('/angular-signals-demo/');
+    });
     
     /**
      * Navigate to next page

@@ -2,6 +2,15 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+/* Documentation Button */
+.beer-list-page__docs-btn {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
 }
 
 /* Header Styles */
