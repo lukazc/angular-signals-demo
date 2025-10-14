@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject, DestroyRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { switchMap, tap, catchError } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { switchMap, tap, catchError, finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { 
   Beer, 
@@ -11,6 +11,7 @@ import {
 } from '../models/beer.model';
 import { BeerApiService } from '../services/beer-api.service';
 import { FavoritesService } from '../services/favorites.service';
+import { LoadingService } from '../services/loading.service';
 
 /**
  * Beer Store
@@ -66,6 +67,7 @@ import { FavoritesService } from '../services/favorites.service';
 export class BeerStore {
   private readonly apiService = inject(BeerApiService);
   private readonly favoritesService = inject(FavoritesService);
+  private readonly loadingService = inject(LoadingService);
   private readonly destroyRef = inject(DestroyRef);
   
   /**
@@ -130,33 +132,38 @@ export class BeerStore {
     // Set up the switchMap pipeline for automatic request cancellation
     // This ensures only the latest request completes, preventing race conditions
     this.loadTrigger$.pipe(
-      // Set loading state when request starts
-      tap(() => {
+      // switchMap cancels previous HTTP request when new one arrives
+      switchMap(params => {
+        // Set loading state when THIS specific request starts
+        // Also manually show loading bar (bypassing interceptor's per-request counter)
         this.loading.set(true);
         this.error.set(null);
-      }),
-      
-      // switchMap cancels previous HTTP request when new one arrives
-      switchMap(params => 
-        this.apiService.searchBeers(params).pipe(
+        this.loadingService.show();
+        
+        return this.apiService.searchBeers(params).pipe(
           // Handle successful response
           tap(beers => {
             this.beers.set(beers);
             console.log(`Loaded ${beers.length} beers (page ${params.page || 1})`);
           }),
-          // Handle errors for this specific request
+          // Handle errors for this specific request (after all retries exhausted)
           catchError(error => {
             const message = error.message || 'Failed to load beers';
             this.error.set(message);
-            console.error('Failed to load beers:', error);
-            // Return empty array to continue the stream
-            return [];
+            console.error('Failed to load beers after retries:', error);
+            // Return empty observable to continue the stream
+            return of([]);
+          }),
+          // CRITICAL: finalize() must be INSIDE switchMap's returned Observable
+          // This ensures it runs when THIS specific request completes (after all retries)
+          // Not when switchMap cancels due to new request
+          finalize(() => {
+            this.loading.set(false);
+            this.loadingService.hide();
+            console.log('Request fully completed (including all retries)');
           })
-        )
-      ),
-      
-      // Clear loading state when request completes (success or error)
-      tap(() => this.loading.set(false)),
+        );
+      }),
       
       // Cleanup on component destruction
       takeUntilDestroyed(this.destroyRef)
