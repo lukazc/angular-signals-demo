@@ -53,47 +53,57 @@ import { AbvRange } from '../../../models/beer.model';
   template: `
     <div class="abv-slider">
       <label class="abv-slider__label">
-        ABV Range
+        Alcohol Content (%)
       </label>
       
-      <mat-slider 
-        [min]="0" 
-        [max]="100" 
-        [step]="1"
-        [discrete]="true"
-        [showTickMarks]="false"
-        class="abv-slider__slider"
-      >
-        <input 
-          matSliderStartThumb
-          [ngModel]="minValue()"
-          (ngModelChange)="onMinChange($event)"
-          aria-label="Minimum ABV"
-        />
-        <input 
-          matSliderEndThumb
-          [ngModel]="maxValue()"
-          (ngModelChange)="onMaxChange($event)"
-          aria-label="Maximum ABV"
-        />
-      </mat-slider>
+      <div class="abv-slider__control">
+        <mat-slider 
+          [min]="0" 
+          [max]="100" 
+          [step]="1"
+          [discrete]="true"
+          [showTickMarks]="false"
+          class="abv-slider__slider"
+        >
+          <input 
+            matSliderStartThumb
+            [ngModel]="minValue()"
+            (ngModelChange)="onMinChange($event)"
+            aria-label="Minimum ABV"
+          />
+          <input 
+            matSliderEndThumb
+            [ngModel]="maxValue()"
+            (ngModelChange)="onMaxChange($event)"
+            aria-label="Maximum ABV"
+          />
+        </mat-slider>
+      </div>
     </div>
   `,
   styles: [`
     .abv-slider {
       width: 100%;
-      padding: 1rem;
+      margin-bottom: 20px;
       
       &__label {
         display: block;
         font-size: 0.875rem;
         font-weight: 500;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      &__control {
+        border: 1px solid var(--mat-sys-outline);
+        border-radius: 4px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       
       &__slider {
-        width: 100%;
-        margin-top: 1rem;
+        width: 90%;
       }
     }
   `]

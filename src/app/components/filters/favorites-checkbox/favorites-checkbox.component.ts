@@ -49,59 +49,64 @@ import { FavoritesService } from '../../../services/favorites.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="favorites-checkbox">
-      <mat-checkbox
-        [formControl]="favoritesControl"
-        color="primary"
-        aria-label="Show only favorite beers"
-        class="favorites-checkbox__control"
-      >
-        <span class="favorites-checkbox__label">
-          <mat-icon class="favorites-checkbox__icon">favorite</mat-icon>
+      <label class="favorites-checkbox__label">
+        Favorites
+      </label>
+      
+      <div class="favorites-checkbox__control-wrapper">
+        <mat-checkbox
+          [formControl]="favoritesControl"
+          color="primary"
+          aria-label="Show only favorite beers"
+          class="favorites-checkbox__control"
+        >
           <span class="favorites-checkbox__text">
-            Favorites only
+            Show only favorites
+            @if (favoriteCount() > 0) {
+              <span class="favorites-checkbox__badge">
+                ({{ favoriteCount() }})
+              </span>
+            }
           </span>
-          @if (favoriteCount() > 0) {
-            <span class="favorites-checkbox__badge">
-              ({{ favoriteCount() }})
-            </span>
-          }
-        </span>
-      </mat-checkbox>
+        </mat-checkbox>
+      </div>
     </div>
   `,
   styles: [`
     .favorites-checkbox {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 0;
+      width: 100%;
+      margin-bottom: 20px;
+      
+      &__label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+      
+      &__control-wrapper {
+        border: 1px solid var(--mat-sys-outline);
+        border-radius: 4px;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+      }
       
       &__control {
         font-size: 1rem;
       }
       
-      &__label {
+      &__text {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-      }
-      
-      &__icon {
-        font-size: 1.25rem;
-        width: 1.25rem;
-        height: 1.25rem;
-        color: #e91e63;
-      }
-      
-      &__text {
-        font-weight: 500;
+        font-weight: 400;
       }
       
       &__badge {
         font-size: 0.875rem;
         font-weight: 600;
-        color: #1976d2;
-        background: rgba(25, 118, 210, 0.1);
-        padding: 0.125rem 0.5rem;
+        padding: 0.125rem;
         border-radius: 12px;
       }
     }

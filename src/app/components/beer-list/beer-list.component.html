@@ -27,7 +27,7 @@
 
         @if (store.filterMode() === 'all' && (store.searchTerm() || store.abvRange().min !== null ||
         store.abvRange().max !== null)) {
-        <button [matButton]="'elevated'" color="primary" class="beer-list__clear-btn" (click)="onClearFilters()">
+        <button matButton="outlined" color="primary" class="beer-list__clear-btn" (click)="onClearFilters()">
             <mat-icon>clear</mat-icon>
             Clear Filters
         </button>

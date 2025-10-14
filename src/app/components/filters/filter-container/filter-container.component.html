@@ -17,17 +17,19 @@
                 <app-search-filter [value]="store.searchTerm()" (valueChange)="onSearchChange($event)" />
             </div>
 
+            <!-- ABV Range Slider -->
+            <app-abv-slider [range]="store.abvRange()" (rangeChange)="onAbvRangeChange($event)" />
+            
+            <!-- Favorites Checkbox -->
+            <div class="filter-container__item filter-container__item--favorites">
+                <app-favorites-checkbox [checked]="store.filterMode() === 'favorites'"
+                (checkedChange)="onFavoritesToggle($event)" />
+            </div>
+            
             <!-- Sort Dropdown -->
             <div class="filter-container__item filter-container__item--sort">
                 <app-sort-dropdown [sortConfig]="store.sortConfig()" (sortConfigChange)="onSortChange($event)" />
             </div>
-
-            <!-- Favorites Checkbox -->
-            <div class="filter-container__item filter-container__item--favorites">
-                <app-favorites-checkbox [checked]="store.filterMode() === 'favorites'"
-                    (checkedChange)="onFavoritesToggle($event)" />
-            </div>
-            <app-abv-slider [range]="store.abvRange()" (rangeChange)="onAbvRangeChange($event)" />
         </div>
 
     </mat-card-content>

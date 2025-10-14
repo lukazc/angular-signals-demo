@@ -61,8 +61,11 @@ interface SortOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="sort-dropdown">
+      <label class="sort-dropdown__label">
+        Sort
+      </label>
+      
       <mat-form-field class="sort-dropdown__field" appearance="outline">
-        <mat-label>Sort by</mat-label>
         <mat-select 
           [formControl]="sortControl"
           aria-label="Sort beers"
@@ -80,6 +83,13 @@ interface SortOption {
   styles: [`
     .sort-dropdown {
       width: 100%;
+      
+      &__label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
       
       &__field {
         width: 100%;

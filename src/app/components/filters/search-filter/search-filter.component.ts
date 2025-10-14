@@ -52,8 +52,11 @@ import { MatInputModule } from '@angular/material/input';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="search-filter">
+      <label class="search-filter__label">
+        Filter by Name
+      </label>
+      
       <mat-form-field class="search-filter__field" appearance="outline">
-        <mat-label>Search beers</mat-label>
         <input
           matInput
           type="text"
@@ -81,6 +84,13 @@ import { MatInputModule } from '@angular/material/input';
   styles: [`
     .search-filter {
       width: 100%;
+      
+      &__label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
       
       &__field {
         width: 100%;
