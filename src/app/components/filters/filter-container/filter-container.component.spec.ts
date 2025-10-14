@@ -15,6 +15,7 @@ describe('FilterContainerComponent', () => {
   let abvRangeSignal: WritableSignal<AbvRange>;
   let filterModeSignal: WritableSignal<'all' | 'favorites'>;
   let sortConfigSignal: WritableSignal<SortConfig>;
+  let hasActiveFiltersSignal: WritableSignal<boolean>;
 
   beforeEach(async () => {
     // Create fresh signal instances for each test
@@ -22,6 +23,7 @@ describe('FilterContainerComponent', () => {
     abvRangeSignal = signal({ min: null, max: null });
     filterModeSignal = signal('all' as const);
     sortConfigSignal = signal({ by: 'recommended' as const, direction: 'asc' as const });
+    hasActiveFiltersSignal = signal(false);
 
     // Create mock store with signal properties
     mockBeerStore = {
@@ -29,6 +31,7 @@ describe('FilterContainerComponent', () => {
       abvRange: abvRangeSignal,
       filterMode: filterModeSignal,
       sortConfig: sortConfigSignal,
+      hasActiveFilters: hasActiveFiltersSignal,
       setSearchTerm: jasmine.createSpy('setSearchTerm'),
       setAbvRange: jasmine.createSpy('setAbvRange'),
       setFilterMode: jasmine.createSpy('setFilterMode'),
@@ -70,12 +73,25 @@ describe('FilterContainerComponent', () => {
       expect(title?.textContent).toBe('Filters');
     });
 
-    it('should display "Clear All" button', () => {
+    it('should display "Clear All" button when filters are active', () => {
+      hasActiveFiltersSignal.set(true);
+      fixture.detectChanges();
+
       const compiled = fixture.nativeElement as HTMLElement;
       const clearBtn = compiled.querySelector('.filter-container__clear-btn');
 
       expect(clearBtn).toBeTruthy();
       expect(clearBtn?.textContent).toContain('Clear All');
+    });
+
+    it('should not display "Clear All" button when no filters are active', () => {
+      hasActiveFiltersSignal.set(false);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const clearBtn = compiled.querySelector('.filter-container__clear-btn');
+
+      expect(clearBtn).toBeFalsy();
     });
   });
 
@@ -185,6 +201,12 @@ describe('FilterContainerComponent', () => {
   });
 
   describe('Clear All Filters', () => {
+    beforeEach(() => {
+      // Set hasActiveFilters to true so the button is rendered
+      hasActiveFiltersSignal.set(true);
+      fixture.detectChanges();
+    });
+
     it('should call store.resetFilters when clear button is clicked', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const clearBtn = compiled.querySelector('.filter-container__clear-btn') as HTMLButtonElement;
@@ -224,13 +246,6 @@ describe('FilterContainerComponent', () => {
       expect(grid).toBeTruthy();
     });
 
-    it('should have divider between sections', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      const divider = compiled.querySelector('mat-divider');
-
-      expect(divider).toBeTruthy();
-    });
-
     it('should have proper CSS classes', () => {
       const compiled = fixture.nativeElement as HTMLElement;
 
@@ -238,7 +253,6 @@ describe('FilterContainerComponent', () => {
       expect(compiled.querySelector('.filter-container__content')).toBeTruthy();
       expect(compiled.querySelector('.filter-container__header')).toBeTruthy();
       expect(compiled.querySelector('.filter-container__grid')).toBeTruthy();
-      expect(compiled.querySelector('.filter-container__abv')).toBeTruthy();
     });
   });
 
@@ -267,12 +281,12 @@ describe('FilterContainerComponent', () => {
       expect(favItem?.querySelector('app-favorites-checkbox')).toBeTruthy();
     });
 
-    it('should place ABV slider in separate full-width section', () => {
+    it('should place ABV slider in grid', () => {
       const compiled = fixture.nativeElement as HTMLElement;
-      const abvSection = compiled.querySelector('.filter-container__abv');
+      const grid = compiled.querySelector('.filter-container__grid');
 
-      expect(abvSection).toBeTruthy();
-      expect(abvSection?.querySelector('app-abv-slider')).toBeTruthy();
+      expect(grid).toBeTruthy();
+      expect(grid?.querySelector('app-abv-slider')).toBeTruthy();
     });
   });
 

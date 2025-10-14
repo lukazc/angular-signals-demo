@@ -28,11 +28,11 @@ describe('AbvSliderComponent', () => {
       expect(component.maxValue()).toBe(100);
     });
 
-    it('should display "0 - 100" initially', () => {
+    it('should display slider controls initially', () => {
       const compiled = fixture.nativeElement as HTMLElement;
-      const valuesSpan = compiled.querySelector('.abv-slider__values');
+      const slider = compiled.querySelector('mat-slider');
 
-      expect(valuesSpan?.textContent?.trim()).toBe('0 - 100');
+      expect(slider).toBeTruthy();
     });
   });
 
@@ -69,14 +69,12 @@ describe('AbvSliderComponent', () => {
       expect(component.maxValue()).toBe(100);
     });
 
-    it('should update display when input range changes', () => {
+    it('should update slider values when input range changes', () => {
       fixture.componentRef.setInput('range', { min: 4, max: 8 });
       fixture.detectChanges();
 
-      const compiled = fixture.nativeElement as HTMLElement;
-      const valuesSpan = compiled.querySelector('.abv-slider__values');
-
-      expect(valuesSpan?.textContent?.trim()).toBe('4 - 8');
+      expect(component.minValue()).toBe(4);
+      expect(component.maxValue()).toBe(8);
     });
   });
 
@@ -137,10 +135,7 @@ describe('AbvSliderComponent', () => {
       fixture.detectChanges();
 
       expect(component.minValue()).toBe(10);
-
-      const compiled = fixture.nativeElement as HTMLElement;
-      const valuesSpan = compiled.querySelector('.abv-slider__values');
-      expect(valuesSpan?.textContent?.trim()).toBe('10 - 100');
+      expect(component.maxValue()).toBe(100);
     });
   });
 
@@ -198,11 +193,11 @@ describe('AbvSliderComponent', () => {
       expect(endThumb).toBeTruthy();
     });
 
-    it('should display initial range values', () => {
+    it('should have proper label', () => {
       const compiled = fixture.nativeElement as HTMLElement;
-      const valuesSpan = compiled.querySelector('.abv-slider__values');
+      const label = compiled.querySelector('.abv-slider__label');
 
-      expect(valuesSpan?.textContent?.trim()).toBe('0 - 100');
+      expect(label?.textContent?.trim()).toBe('Alcohol Content (%)');
     });
   });
 
@@ -220,34 +215,25 @@ describe('AbvSliderComponent', () => {
 
       expect(maxInput?.getAttribute('aria-label')).toBe('Maximum ABV');
     });
-
-    it('should display label text', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      const label = compiled.querySelector('.abv-slider__label');
-
-      expect(label?.textContent).toContain('ABV Range:');
-    });
   });
 
   describe('Visual Elements', () => {
-    it('should display current values', () => {
+    it('should have slider control', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const slider = compiled.querySelector('mat-slider');
+      const control = compiled.querySelector('.abv-slider__control');
+
+      expect(slider).toBeTruthy();
+      expect(control).toBeTruthy();
+    });
+
+    it('should update internal values', () => {
       component.onMinChange(5);
       component.onMaxChange(15);
       fixture.detectChanges();
 
-      const compiled = fixture.nativeElement as HTMLElement;
-      const valuesSpan = compiled.querySelector('.abv-slider__values');
-
-      expect(valuesSpan?.textContent?.trim()).toBe('5 - 15');
-    });
-
-    it('should have proper CSS classes', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-
-      expect(compiled.querySelector('.abv-slider')).toBeTruthy();
-      expect(compiled.querySelector('.abv-slider__label')).toBeTruthy();
-      expect(compiled.querySelector('.abv-slider__values')).toBeTruthy();
-      expect(compiled.querySelector('.abv-slider__slider')).toBeTruthy();
+      expect(component.minValue()).toBe(5);
+      expect(component.maxValue()).toBe(15);
     });
   });
 

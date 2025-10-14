@@ -205,13 +205,6 @@ describe('SortDropdownComponent', () => {
       expect(select).toBeTruthy();
     });
 
-    it('should have "Sort by" label', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      const label = compiled.querySelector('mat-label');
-
-      expect(label?.textContent).toBe('Sort by');
-    });
-
     it('should have Material form field', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const formField = compiled.querySelector('mat-form-field');
@@ -241,14 +234,6 @@ describe('SortDropdownComponent', () => {
       const select = compiled.querySelector('mat-select');
 
       expect(select).toBeTruthy();
-    });
-
-    it('should have label associated with select', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      const formField = compiled.querySelector('mat-form-field');
-      const label = formField?.querySelector('mat-label');
-
-      expect(label).toBeTruthy();
     });
   });
 

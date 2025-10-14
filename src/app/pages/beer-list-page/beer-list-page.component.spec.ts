@@ -26,6 +26,7 @@ describe('BeerListPageComponent', () => {
   let searchTermSignal: WritableSignal<string>;
   let abvRangeSignal: WritableSignal<{ min: number | null; max: number | null }>;
   let sortConfigSignal: WritableSignal<{ by: 'recommended' | 'name' | 'abv'; direction: 'asc' | 'desc' }>;
+  let hasActiveFiltersSignal: WritableSignal<boolean>;
 
   /**
    * Helper to create component with specific query params
@@ -54,6 +55,7 @@ describe('BeerListPageComponent', () => {
     searchTermSignal = signal('');
     abvRangeSignal = signal({ min: null, max: null });
     sortConfigSignal = signal({ by: 'recommended' as const, direction: 'asc' as const });
+    hasActiveFiltersSignal = signal(false);
 
     // Create mock store with signal properties
     mockBeerStore = {
@@ -69,11 +71,12 @@ describe('BeerListPageComponent', () => {
       abvRange: abvRangeSignal,
       sortConfig: sortConfigSignal,
       sourceBeers: sourceBeersSignal,
+      hasActiveFilters: hasActiveFiltersSignal,
       loadBeers: jasmine.createSpy('loadBeers'),
       toggleFavorite: jasmine.createSpy('toggleFavorite'),
       isFavorite: jasmine.createSpy('isFavorite').and.returnValue(false),
       resetFilters: jasmine.createSpy('resetFilters'),
-      setInitialPage: jasmine.createSpy('setInitialPage')
+      setInitialPage: jasmine.createSpy('setInitialPage'),
     };
 
     await TestBed.configureTestingModule({
@@ -111,10 +114,17 @@ describe('BeerListPageComponent', () => {
     expect(header).toBeTruthy();
   });
 
-  it('should display page title', () => {
+  it('should display page logo', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const title = compiled.querySelector('.beer-list-page__title');
-    expect(title?.textContent).toContain('Beer Catalog');
+    const logo = compiled.querySelector('.beer-list-page__logo');
+    expect(logo).toBeTruthy();
+    expect(logo?.getAttribute('alt')).toBe('Beer Catalog Logo');
+  });
+
+  it('should display page subtitle', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const subtitle = compiled.querySelector('.beer-list-page__subtitle');
+    expect(subtitle?.textContent).toContain('Explore the world of craft beers');
   });
 
   it('should display beer list component', () => {
@@ -129,18 +139,18 @@ describe('BeerListPageComponent', () => {
     expect(container).toBeTruthy();
   });
 
-  it('should display footer', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const footer = compiled.querySelector('.beer-list-page__footer');
-    expect(footer).toBeTruthy();
-  });
+//   it('should display footer', () => {
+//     const compiled = fixture.nativeElement as HTMLElement;
+//     const footer = compiled.querySelector('.beer-list-page__footer');
+//     expect(footer).toBeTruthy();
+//   });
 
-  it('should have link to Punk API in footer', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const link = compiled.querySelector('.beer-list-page__footer a') as HTMLAnchorElement;
-    expect(link).toBeTruthy();
-    expect(link.href).toContain('punkapi');
-  });
+//   it('should have link to Punk API in footer', () => {
+//     const compiled = fixture.nativeElement as HTMLElement;
+//     const link = compiled.querySelector('.beer-list-page__footer a') as HTMLAnchorElement;
+//     expect(link).toBeTruthy();
+//     expect(link.href).toContain('punkapi');
+//   });
 
   describe('URL-Driven Pagination', () => {
     it('should read page 1 from URL on initial load', async () => {

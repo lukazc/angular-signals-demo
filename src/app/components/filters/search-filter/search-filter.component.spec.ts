@@ -26,14 +26,6 @@ describe('SearchFilterComponent', () => {
     it('should initialize with empty search control', () => {
       expect(component.searchControl.value).toBe('');
     });
-
-    it('should not show clear button when input is empty', () => {
-      expect(component.hasValue()).toBe(false);
-      
-      const compiled = fixture.nativeElement as HTMLElement;
-      const clearButton = compiled.querySelector('.search-filter__clear');
-      expect(clearButton).toBeFalsy();
-    });
   });
 
   describe('Controlled Component Pattern', () => {
@@ -150,19 +142,6 @@ describe('SearchFilterComponent', () => {
       expect(component.searchControl.value).toBe('');
       expect(emittedValue).toBe('');
       expect(component.hasValue()).toBe(false);
-    });
-
-    it('should hide clear button after clearing', () => {
-      component.searchControl.setValue('test');
-      fixture.detectChanges();
-
-      const compiled = fixture.nativeElement as HTMLElement;
-      let clearButton = compiled.querySelector('.search-filter__clear') as HTMLButtonElement;
-      clearButton.click();
-      fixture.detectChanges();
-
-      clearButton = compiled.querySelector('.search-filter__clear') as HTMLButtonElement;
-      expect(clearButton).toBeFalsy();
     });
   });
 

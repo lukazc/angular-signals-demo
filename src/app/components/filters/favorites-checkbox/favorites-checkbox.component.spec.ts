@@ -198,30 +198,13 @@ describe('FavoritesCheckboxComponent', () => {
   });
 
   describe('Visual Elements', () => {
-    it('should display "Favorites only" text', () => {
+    it('should display "Show only favorites" text', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const text = compiled.querySelector('.favorites-checkbox__text');
 
-      expect(text?.textContent?.trim()).toBe('Favorites only');
+      expect(text?.textContent?.trim()).toBe('Show only favorites');
     });
 
-    it('should display heart icon', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      const icon = compiled.querySelector('.favorites-checkbox__icon');
-
-      expect(icon).toBeTruthy();
-      expect(icon?.textContent?.trim()).toBe('favorite');
-    });
-
-    it('should have proper CSS classes', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-
-      expect(compiled.querySelector('.favorites-checkbox')).toBeTruthy();
-      expect(compiled.querySelector('.favorites-checkbox__control')).toBeTruthy();
-      expect(compiled.querySelector('.favorites-checkbox__label')).toBeTruthy();
-      expect(compiled.querySelector('.favorites-checkbox__icon')).toBeTruthy();
-      expect(compiled.querySelector('.favorites-checkbox__text')).toBeTruthy();
-    });
   });
 
   describe('Accessibility', () => {

@@ -28,6 +28,7 @@ describe('BeerListComponent', () => {
   let searchTermSignal: WritableSignal<string>;
   let abvRangeSignal: WritableSignal<{ min: number | null; max: number | null }>;
   let sortConfigSignal: WritableSignal<{ by: 'recommended' | 'name' | 'abv'; direction: 'asc' | 'desc' }>;
+  let hasActiveFiltersSignal: WritableSignal<boolean>;
 
   const mockBeer: Beer = {
     id: 1,
@@ -77,6 +78,7 @@ describe('BeerListComponent', () => {
     searchTermSignal = signal('');
     abvRangeSignal = signal({ min: null, max: null });
     sortConfigSignal = signal({ by: 'recommended' as const, direction: 'asc' as const });
+    hasActiveFiltersSignal = signal(false);
 
     // Create mock store with signal properties
     mockBeerStore = {
@@ -92,6 +94,7 @@ describe('BeerListComponent', () => {
       abvRange: abvRangeSignal,
       sortConfig: sortConfigSignal,
       sourceBeers: sourceBeersSignal,
+      hasActiveFilters: hasActiveFiltersSignal,
       setInitialPage: jasmine.createSpy('setInitialPage'),
       resetFilters: jasmine.createSpy('resetFilters'),
       loadBeers: jasmine.createSpy('loadBeers'),
