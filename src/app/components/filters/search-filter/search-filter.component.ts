@@ -58,23 +58,23 @@ import { MatInputModule } from '@angular/material/input';
           matInput
           type="text"
           [formControl]="searchControl"
-          placeholder="Search beers by name..."
+          placeholder="Search beers by name"
           aria-label="Search beers"
           class="search-filter__input"
         />
         <mat-icon matIconPrefix class="search-filter__icon">search</mat-icon>
-        @if (hasValue()) {
-          <button
-            matIconSuffix
-            matIconButton
-            (click)="clearSearch()"
-            aria-label="Clear search"
-            class="search-filter__clear"
-            type="button"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
-        }
+        <button
+          matIconSuffix
+          matIconButton
+          (click)="clearSearch()"
+          aria-label="Clear search"
+          class="search-filter__clear"
+          type="button"
+          [disabled]="!hasValue()"
+          [class.search-filter__clear--hidden]="!hasValue()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
       </mat-form-field>
     </div>
   `,
@@ -92,11 +92,16 @@ import { MatInputModule } from '@angular/material/input';
       }
       
       &__icon {
-        color: rgba(0, 0, 0, 0.54);
       }
       
       &__clear {
-        margin-right: -8px;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        
+        &--hidden {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
       }
     }
   `]

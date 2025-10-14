@@ -299,7 +299,17 @@ export class BeerStore {
       return 'No beers available.';
     }
   });
-  
+
+  /**
+   * True if any filters are active (search, sort, abvRange, or favorites mode)
+   */
+  readonly hasActiveFilters = computed(() => {
+    return this.searchTerm().trim().length > 0 ||
+           this.abvRange().min !== null || this.abvRange().max !== null ||
+           this.sortConfig().by !== 'recommended' ||
+           this.filterMode() === 'favorites';
+  });
+
   // ============================================================================
   // Actions
   // ============================================================================

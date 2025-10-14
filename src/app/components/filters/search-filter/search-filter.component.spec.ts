@@ -212,7 +212,7 @@ describe('SearchFilterComponent', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const input = compiled.querySelector('input') as HTMLInputElement;
 
-      expect(input.placeholder).toBe('Search beers by name...');
+      expect(input.placeholder).toBe('Search beers by name');
     });
   });
 

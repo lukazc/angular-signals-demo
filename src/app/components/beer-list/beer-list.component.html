@@ -43,7 +43,7 @@
 
     @if (store.filterMode() === 'all') {
     <div class="beer-list__pagination">
-        <button [matButton]="'elevated'" class="beer-list__pagination-btn" [disabled]="store.currentPage() === 1"
+        <button matButton class="beer-list__pagination-btn" [disabled]="store.currentPage() === 1"
             (click)="onPreviousPage()" aria-label="Go to previous page">
             <mat-icon>chevron_left</mat-icon>
             Previous
@@ -53,7 +53,7 @@
             Page {{ store.currentPage() }}
         </span>
 
-        <button [matButton]="'elevated'" class="beer-list__pagination-btn" [disabled]="store.displayedBeers().length < 25"
+        <button matButton class="beer-list__pagination-btn" [disabled]="store.displayedBeers().length < 25"
             (click)="onNextPage()" aria-label="Go to next page">
             Next
             <mat-icon>chevron_right</mat-icon>

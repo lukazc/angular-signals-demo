@@ -53,16 +53,13 @@ import { AbvRange } from '../../../models/beer.model';
   template: `
     <div class="abv-slider">
       <label class="abv-slider__label">
-        ABV Range: 
-        <span class="abv-slider__values">
-          {{ minValue() }} - {{ maxValue() }}
-        </span>
+        ABV Range
       </label>
       
       <mat-slider 
         [min]="0" 
         [max]="100" 
-        [step]="0.1"
+        [step]="1"
         [discrete]="true"
         [showTickMarks]="false"
         class="abv-slider__slider"
@@ -91,13 +88,7 @@ import { AbvRange } from '../../../models/beer.model';
         display: block;
         font-size: 0.875rem;
         font-weight: 500;
-        color: rgba(0, 0, 0, 0.87);
         margin-bottom: 1rem;
-      }
-      
-      &__values {
-        font-weight: 700;
-        color: #1976d2;
       }
       
       &__slider {

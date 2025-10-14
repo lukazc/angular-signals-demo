@@ -1,0 +1,34 @@
+<mat-card class="filter-container">
+    <mat-card-content class="filter-container__content">
+        <div class="filter-container__header">
+            <h3 class="filter-container__title">Filters</h3>
+            @if (store.hasActiveFilters()) {
+                <button matButton (click)="clearAllFilters()" class="filter-container__clear-btn"
+                    aria-label="Clear all filters">
+                    <mat-icon>clear_all</mat-icon>
+                    Clear All
+                </button>
+            }
+        </div>
+
+        <div class="filter-container__grid">
+            <!-- Search Filter -->
+            <div class="filter-container__item filter-container__item--search">
+                <app-search-filter [value]="store.searchTerm()" (valueChange)="onSearchChange($event)" />
+            </div>
+
+            <!-- Sort Dropdown -->
+            <div class="filter-container__item filter-container__item--sort">
+                <app-sort-dropdown [sortConfig]="store.sortConfig()" (sortConfigChange)="onSortChange($event)" />
+            </div>
+
+            <!-- Favorites Checkbox -->
+            <div class="filter-container__item filter-container__item--favorites">
+                <app-favorites-checkbox [checked]="store.filterMode() === 'favorites'"
+                    (checkedChange)="onFavoritesToggle($event)" />
+            </div>
+            <app-abv-slider [range]="store.abvRange()" (rangeChange)="onAbvRangeChange($event)" />
+        </div>
+
+    </mat-card-content>
+</mat-card>

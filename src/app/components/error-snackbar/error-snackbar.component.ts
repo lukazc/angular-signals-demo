@@ -15,7 +15,6 @@ import { ErrorMessageService } from '../../services/error-message.service';
  * - Auto-dismiss: Closes after timeout (default 5 seconds)
  * - Manual dismiss: User can close with X button
  * - Non-blocking: Doesn't interrupt user flow
- * - Styled for errors: Red background with white text
  * 
  * Usage:
  * Add to app component template. Component will automatically
@@ -52,7 +51,6 @@ export class ErrorSnackbarComponent {
                     duration: 5000,
                     horizontalPosition: 'center',
                     verticalPosition: 'bottom',
-                    panelClass: ['error-snackbar']
                 });
             }
         });

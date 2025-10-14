@@ -47,7 +47,6 @@ import { LoadingService } from '../../services/loading.service';
         }
 
         ::ng-deep .loading-bar .mat-mdc-progress-bar-fill::after {
-            background-color: #667eea;
         }
     `]
 })
